@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { RoleId, ResumeAnalysisResult, ActiveTab } from '../types';
 import { CAREER_ROLES } from '../data/rolesData';
-import { analyzeResumeWithAI } from '../services/aiService';
+import { analyzeResumeWithAI, BACKEND_URL } from '../services/aiService';
 import { 
   FileText, 
   Upload, 
@@ -83,12 +83,15 @@ export const ResumeAnalyzer: React.FC<ResumeAnalyzerProps> = ({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
-
   const handleFileUpload = async (file: File) => {
     if (!file) return;
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
       setUploadError('Only PDF files are supported.');
+      return;
+    }
+
+    if (!BACKEND_URL) {
+      setUploadError('PDF upload is unavailable right now. Please paste your resume text instead.');
       return;
     }
 

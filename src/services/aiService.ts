@@ -3,7 +3,7 @@ import { CAREER_ROLES } from '../data/rolesData';
 
 // Ollama API Key & Configuration
 export const getOllamaApiKey = (): string => {
-  return localStorage.getItem('skillpath_ollama_api_key') || 'bedb569fdbc44de9b752abf7a4f39160.XyeVcmZou5qBH6qEQrgy9BaO';
+  return localStorage.getItem('skillpath_ollama_api_key') || '';
 };
 
 export const setOllamaApiKey = (key: string): void => {
@@ -38,7 +38,9 @@ export const setOllamaModel = (model: string): void => {
   }
 };
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+// The FastAPI backend is only reachable when VITE_BACKEND_URL is set (or locally in dev)
+export const BACKEND_URL: string =
+  import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:8000' : '');
 
 function getOllamaEndpoint(baseUrl: string, path: string): string {
   const base = baseUrl.replace(/\/$/, '');
@@ -75,7 +77,7 @@ export async function analyzeResumeWithAI(
   const ollamaModel = getOllamaModel();
 
   // 1. Try FastAPI Backend Endpoint first if available
-  try {
+  if (BACKEND_URL) try {
     const backendResp = await fetch(`${BACKEND_URL}/api/resume/analyze`, {
       method: 'POST',
       headers: {
@@ -218,7 +220,7 @@ export async function askAIMentor(
   const ollamaModel = getOllamaModel();
 
   // 1. Try FastAPI Backend Endpoint
-  try {
+  if (BACKEND_URL) try {
     const backendResp = await fetch(`${BACKEND_URL}/api/mentor/chat`, {
       method: 'POST',
       headers: {
@@ -295,7 +297,7 @@ export async function chatWithOllamaDirect(
   const ollamaModel = getOllamaModel();
 
   // 1. Try FastAPI Backend Endpoint
-  try {
+  if (BACKEND_URL) try {
     const backendResp = await fetch(`${BACKEND_URL}/api/chat`, {
       method: 'POST',
       headers: {
